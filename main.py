@@ -31,9 +31,6 @@ def init():
                                   help="Specify the mine count of the board",
                                   type=int,
                                   default=99)
-    parser.add_argument("-C", "--coloured",
-                        help="Specify whether the board is coloured in previews",
-                        action="store_true")
     parser.add_argument("-v", "--verbosity",
                         help="Increase output verbosity",
                         action="count")
@@ -80,7 +77,7 @@ def main(mines):
     try:
         for i in range(args.play_count):
             game.reset()
-            agent.play(show_mines=args.show_mines, coloured=args.coloured, verbosity=args.verbosity,
+            agent.play(show_mines=args.show_mines, verbosity=args.verbosity,
                        show_strategy=args.show_strategy, step_by_step=args.step_by_step)
             completion_rate += game.opened/(args.rows*args.columns)
             if args.step_by_step and args.play_count > 1:
