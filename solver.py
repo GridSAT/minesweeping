@@ -281,7 +281,6 @@ def guess_node(solution):
 
     if possible_guesses:
         guess = sorted(possible_guesses, key=lambda x: possible_guesses[x], reverse=True)[0]
-        print(possible_guesses[guess])
         return guess
     else:
         return random.choice(list(unknown_nodes))
