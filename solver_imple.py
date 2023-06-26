@@ -3,7 +3,8 @@ from solver import *
 
 def solve(board, initial, max_depth=1, remainder_cutoff=0):
     solution = Solution(board.rows, board.cols, board.mines)
-    initial_revealed = board.reveal_node(board.safe_initial())
+    #initial_revealed = board.reveal_node(board.safe_initial())
+    initial_revealed = board.reveal_node((0, 0))
 
     for node, value in initial_revealed:
         solution.grid.nodes[node]["solved"] = True 

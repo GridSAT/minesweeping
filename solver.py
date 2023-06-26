@@ -252,32 +252,39 @@ def guess_node(solution):
 
     possible_guesses = dict()
 
-    # cells not adjacent to any opened cells
-    # P(safety) AND P(progress)
     for n in locked_nodes:
         a = math.comb(len(unknown_nodes) - 1 - len(list(solution.grid.neighbors(n))), mines_needed)
         b = math.comb(len(unknown_nodes) - 1 , mines_needed)
-        possible_guesses[n] = a / b
+        progress = a / b
+        mines_accounted = 0
+        for m in solution.grid.nodes:
+            mines_accounted += solution.grid.nodes[m]["value"] - len([k for k in solution.grid.neighbors(m) if solution.grid.nodes[k]["flagged"]])
+        safety = 1 - ((mines_needed - mines_accounted) / (len(unknown_nodes) - 1))
+        if safety == 1:
+            return n
+        else:
+            possible_guesses[n] = ((2/3) * safety + (1/3) * progress) 
 
     for n in unlocked_nodes:
-        surroundings = [m for m in solution.grid.neighbors(n) if solution.grid.nodes[m]["solved"] and not solution.grid.nodes[m]["flagged"] and solution.grid.nodes[m]["value"]]
-        find_some_times = []
+        surroundings = [m for m in solution.grid.neighbors(n) if solution.grid.nodes[m]["solved"] and not solution.grid.nodes[m]["flagged"] and solution.grid.nodes[m]["value"] != -1]
+        safeties = []
 
-        # calculation of P(safety)
         for m in surroundings:
             val = solution.grid.nodes[m]["value"]
             val -= len([k for k in solution.grid.neighbors(m) if solution.grid.nodes[k]["flagged"]])
             local_space = len([k for k in solution.grid.neighbors(m) if not solution.grid.nodes[k]["solved"]])
-            find_some_times.append(val/local_space)
+            safeties.append(1 - (val/local_space))
 
-        if find_some_times:
-            possible_guesses[n] = sum(find_some_times)/len(find_some_times)
+        if safeties:
+            possible_guesses[n] = sum(safeties)/len(safeties)
+        
 
     if possible_guesses:
         guess = sorted(possible_guesses, key=lambda x: possible_guesses[x], reverse=True)[0]
+        print(possible_guesses[guess])
         return guess
     else:
-        return list(unknown_nodes)[0]
+        return random.choice(list(unknown_nodes))
 
 
 def is_complete(solution):
