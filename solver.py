@@ -247,12 +247,13 @@ def guess_node(solution):
     mines_solved = sum(1 for n in solution.grid.nodes if solution.grid.nodes[n]["solved"] and solution.grid.nodes[n]["value"] == -1)
     mines_needed = solution.mines - mines_solved 
 
-    locked_nodes = set([n for n in unknown_nodes if all(not solution.grid.nodes[m]["solved"] for m in solution.grid.neighbors(n))])
-    unlocked_nodes = unknown_nodes - locked_nodes  
+    landlocked_nodes = set([n for n in unknown_nodes if all(not solution.grid.nodes[m]["solved"] for m in solution.grid.neighbors(n))])
+    non_landlocked_nodes = set([n for n in unknown_nodes if any(solution.grid.nodes[m]["solved"] and solution.grid.nodes[m]["value"] != -1 for m in solution.grid.neighbors(n))])
 
     possible_guesses = dict()
 
-    for n in locked_nodes:
+    # completed
+    for n in landlocked_nodes:
         a = math.comb(len(unknown_nodes) - 1 - len(list(solution.grid.neighbors(n))), mines_needed)
         b = math.comb(len(unknown_nodes) - 1 , mines_needed)
         progress = a / b
@@ -265,8 +266,11 @@ def guess_node(solution):
         else:
             possible_guesses[n] = ((2/3) * safety + (1/3) * progress) 
 
-    for n in unlocked_nodes:
-        surroundings = [m for m in solution.grid.neighbors(n) if solution.grid.nodes[m]["solved"] and not solution.grid.nodes[m]["flagged"] and solution.grid.nodes[m]["value"] != -1]
+
+    for n in non_landlocked_nodes:
+        surroundings = [m for m in solution.grid.neighbors(n) if solution.grid.nodes[m]["solved"] and solution.grid.nodes[m]["value"] != -1]
+        unknown_neighbors = [m for m in solution.grid.neighbors(n) if not solution.grid.nodes[m]["solved"]]
+
         safeties = []
 
         for m in surroundings:
@@ -275,9 +279,8 @@ def guess_node(solution):
             local_space = len([k for k in solution.grid.neighbors(m) if not solution.grid.nodes[k]["solved"]])
             safeties.append(1 - (val/local_space))
 
-        if safeties:
-            possible_guesses[n] = sum(safeties)/len(safeties)
-        
+        safety = sum(safeties)/len(safeties)
+        possible_guesses[n] = safety
 
     if possible_guesses:
         guess = sorted(possible_guesses, key=lambda x: possible_guesses[x], reverse=True)[0]

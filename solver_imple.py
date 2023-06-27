@@ -12,7 +12,7 @@ def solve(board, initial, max_depth=1, remainder_cutoff=0):
         if value == -1:
             return solution
 
-    depth = 0
+    depth = 1
 
     for i in range(10000):
         solved = sat_inspect(solution, depth=depth)
