@@ -38,7 +38,7 @@ def solve(board, initial, max_depth=1, remainder_cutoff=0):
             break
 
     while not check_solution(board, solution):
-        guess = guess_node(solution)
+        guess = guess_node(board, solution)
         if guess:
             guess_revealed = board.reveal_node(guess)
             for node, value in guess_revealed:

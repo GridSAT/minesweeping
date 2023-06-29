@@ -1,6 +1,7 @@
 import random
 import math
 import itertools as it 
+import copy
 
 import networkx as nx 
 from bidict import bidict 
@@ -239,7 +240,7 @@ def solve_remainder(solution, cutoff=16):
     else:
         return []
 
-def guess_node(solution):
+def guess_node(board, solution):
     unknown_nodes = set([n for n in solution.grid.nodes if not solution.grid.nodes[n]["solved"]])
     if len(unknown_nodes) == 0:
         return []
@@ -251,6 +252,7 @@ def guess_node(solution):
     non_landlocked_nodes = set([n for n in unknown_nodes if any(solution.grid.nodes[m]["solved"] and solution.grid.nodes[m]["value"] != -1 for m in solution.grid.neighbors(n))])
 
     possible_guesses = dict()
+    possible_progresses = dict()
 
     # completed
     for n in landlocked_nodes:
@@ -264,8 +266,8 @@ def guess_node(solution):
         if safety == 1:
             return n
         else:
-            possible_guesses[n] = ((2/3) * safety + (1/3) * progress) 
-
+            possible_guesses[n] = safety
+            possible_progresses[n] = progress
 
     for n in non_landlocked_nodes:
         surroundings = [m for m in solution.grid.neighbors(n) if solution.grid.nodes[m]["solved"] and solution.grid.nodes[m]["value"] != -1]
@@ -282,7 +284,26 @@ def guess_node(solution):
         safety = sum(safeties)/len(safeties)
         possible_guesses[n] = safety
 
+        progress = 0
+
+        for i in range(len([m for m in solution.grid.neighbors(n) if solution.grid.nodes[m]["value"] == -1]), len([m for m in solution.grid.neighbors(n) if not solution.grid.nodes[m]["solved"]])):
+            try:
+                fake_solution = copy.deepcopy(solution)
+                fake_solution.grid = solution.grid.copy()
+                fake_solution.grid.nodes[n]["value"] = i
+                fake_solution.grid.nodes[n]["solved"] = True
+                progress += len(sat_inspect(fake_solution))
+                progress.append(len(sat_inspect(fake_solution)))
+            except:
+                continue
+        
+        possible_progresses[n] = progress
+
     if possible_guesses:
+        highest_progress = max(list(possible_progresses.values()))
+        if highest_progress != 0:
+            for n in possible_progresses:
+                possible_guesses[n] += 0.1 * possible_progresses[n] / highest_progress
         guess = sorted(possible_guesses, key=lambda x: possible_guesses[x], reverse=True)[0]
         return guess
     else:
