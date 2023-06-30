@@ -252,7 +252,8 @@ def guess_node(board, solution):
     non_landlocked_nodes = set([n for n in unknown_nodes if any(solution.grid.nodes[m]["solved"] and solution.grid.nodes[m]["value"] != -1 for m in solution.grid.neighbors(n))])
 
     possible_guesses = dict()
-    possible_progresses = dict()
+    safety_weight = 1
+    progress_weight = 0.2
 
     # completed
     for n in landlocked_nodes:
@@ -266,13 +267,11 @@ def guess_node(board, solution):
         if safety == 1:
             return n
         else:
-            possible_guesses[n] = safety
-            possible_progresses[n] = progress
+            possible_guesses[n] = safety * safety_weight + progress * progress_weight
 
     for n in non_landlocked_nodes:
         surroundings = [m for m in solution.grid.neighbors(n) if solution.grid.nodes[m]["solved"] and solution.grid.nodes[m]["value"] != -1]
         unknown_neighbors = [m for m in solution.grid.neighbors(n) if not solution.grid.nodes[m]["solved"]]
-
         safeties = []
 
         for m in surroundings:
@@ -285,25 +284,23 @@ def guess_node(board, solution):
         possible_guesses[n] = safety
 
         progress = 0
+        mine_value_range = range(len([m for m in solution.grid.neighbors(n) if solution.grid.nodes[m]["value"] == -1]), len([m for m in solution.grid.neighbors(n) if not solution.grid.nodes[m]["solved"]]))
 
-        for i in range(len([m for m in solution.grid.neighbors(n) if solution.grid.nodes[m]["value"] == -1]), len([m for m in solution.grid.neighbors(n) if not solution.grid.nodes[m]["solved"]])):
+        for i in mine_value_range:
             try:
                 fake_solution = copy.deepcopy(solution)
                 fake_solution.grid = solution.grid.copy()
                 fake_solution.grid.nodes[n]["value"] = i
                 fake_solution.grid.nodes[n]["solved"] = True
-                progress += len(sat_inspect(fake_solution))
-                progress.append(len(sat_inspect(fake_solution)))
+                if len(sat_inspect(fake_solution)) >= 1:
+                    progress += 1
             except:
                 continue
-        
-        possible_progresses[n] = progress
+
+        progress /= max(len(mine_value_range), 1)
+        possible_guesses[n] = safety * safety_weight + progress * progress_weight
 
     if possible_guesses:
-        highest_progress = max(list(possible_progresses.values()))
-        if highest_progress != 0:
-            for n in possible_progresses:
-                possible_guesses[n] += 0.1 * possible_progresses[n] / highest_progress
         guess = sorted(possible_guesses, key=lambda x: possible_guesses[x], reverse=True)[0]
         return guess
     else:
