@@ -24,3 +24,6 @@ For safety, a combinatorial argument is used. For unopened cells adjacent to at 
 
 For probability, if the considered cell is adjacent to at least 1 opened cell, brute force is used to check which mine numbers will lead to progress. The solver iterates through a range of possible cell values, and checks for the number of values in which the SAT solver will be able to progress. The progress probability is then given by the number of scenarios with progress divided by the total number of scenarios.
 
+## License
+This repository is licensed under the MIT license. See [`LICENSE`](LICENSE) for more information.
+
