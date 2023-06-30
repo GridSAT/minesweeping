@@ -8,8 +8,9 @@ All code is written in Python 3, and is compatible with the latest version of Py
 
 The libraries/modules used are documented in [`requirements.txt`](requirements.txt), which include:
 - `random`, `math`, `itertools`, `copy` (built-in Python modules)
-- `python-sat` (v0.1.8)
-- `networkx` (3.1)
+- `bidict`
+- `python-sat` 
+- `networkx` 
 
 ## Solver 
 

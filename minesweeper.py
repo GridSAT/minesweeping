@@ -22,15 +22,8 @@ class Minesweeper:
             self.grid.nodes[n]['value'] = 0
             self.grid.nodes[n]['revealed'] = False
 
-        mine_positions = [i for i in range(self.rows * self.cols) if i not in [0, 15, 464, 479]]
+        mine_positions = [i for i in range(self.rows * self.cols) if i != 0]
         random.shuffle(mine_positions)
-
-        #tested_mines = [6, 7, 8, 11, 13, 16, 17, 18]
-        #mine_positions = [i for i in range(self.rows * self.cols) if i not in tested_mines]
-        #random.shuffle(mine_positions)
-        #random.shuffle(tested_mines)
-        #mine_positions.insert(0, tested_mines[0])
-        #mine_positions.insert(0, tested_mines[1])
 
         for i in range(self.mines):
             x = mine_positions[i] % self.rows 

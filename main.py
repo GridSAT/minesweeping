@@ -17,14 +17,10 @@ for i in range(games_to_play):
         game_result = ""
         if check_solution(board, soln) == 1:
             games_won += 1
-            game_result = "Game won!"
-        else:
-            games_lost += 1
-            game_result = "Game lost."
         print(f"\r[{'=' * int(60 * (i + 1) / games_to_play)}{' ' * int(60 - 60 * (i + 1) / games_to_play)}] {'{:.1f}'.format((i + 1) / games_to_play * 100)}% ({'{:.1f}'.format(games_won / (i + 1) * 100)}%)", end="")
     except Exception as err:
         print(err)
         continue 
     
 
-print(f"\nWin rate: {round(games_won/(games_won+games_lost)*100, 2)}%")
+print(f"\nWin rate: {round(games_won/games_to_play * 100, 2)}%")

@@ -254,8 +254,7 @@ def guess_node(board, solution):
     possible_guesses = dict()
     safety_weight = 1
     progress_weight = 0.2
-
-    # completed
+    
     for n in landlocked_nodes:
         a = math.comb(len(unknown_nodes) - 1 - len(list(solution.grid.neighbors(n))), mines_needed)
         b = math.comb(len(unknown_nodes) - 1 , mines_needed)
